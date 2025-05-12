@@ -39,32 +39,38 @@ else
         fi
 fi
 
-
-# Install etcd from google
-ETCD_VER=v3.5.17
-GOOGLE_URL=https://storage.googleapis.com/etcd
-GITHUB_URL=https://github.com/etcd-io/etcd/releases/download
-DOWNLOAD_URL=${GOOGLE_URL}
-rm -f /tmp/etcd-${ETCD_VER}-linux-amd64.tar.gz
-rm -rf /tmp/etcd-download-test && mkdir -p /tmp/etcd-download-test
-curl -L ${DOWNLOAD_URL}/${ETCD_VER}/etcd-${ETCD_VER}-linux-amd64.tar.gz -o /tmp/etcd-${ETCD_VER}-linux-amd64.tar.gz
-tar xzvf /tmp/etcd-${ETCD_VER}-linux-amd64.tar.gz -C /tmp/etcd-download-test --strip-components=1
-rm -f /tmp/etcd-${ETCD_VER}-linux-amd64.tar.gz
-/tmp/etcd-download-test/etcd --version
-/tmp/etcd-download-test/etcdctl version
-/tmp/etcd-download-test/etcdutl version
-cp -p /tmp/etcd-download-test/etcd /usr/bin/
-cp -p /tmp/etcd-download-test/etcdctl /usr/bin/
-cp -p /tmp/etcd-download-test/etcdutl /usr/bin/
-cd /tmp
-rm -rf /tmp/etcd-download-test
-
+if [[ ! -f "/usr/bin/etcd" && ! -f "/usr/bin/etcdctl" && ! -f "/usr/bin/etcdutl" ]]
+then
+  # Install etcd from google
+  ETCD_VER=v3.5.17
+  GOOGLE_URL=https://storage.googleapis.com/etcd
+  GITHUB_URL=https://github.com/etcd-io/etcd/releases/download
+  DOWNLOAD_URL=${GOOGLE_URL}
+  rm -f /tmp/etcd-${ETCD_VER}-linux-amd64.tar.gz
+  rm -rf /tmp/etcd-download-test && mkdir -p /tmp/etcd-download-test
+  curl -L ${DOWNLOAD_URL}/${ETCD_VER}/etcd-${ETCD_VER}-linux-amd64.tar.gz -o /tmp/etcd-${ETCD_VER}-linux-amd64.tar.gz
+  tar xzvf /tmp/etcd-${ETCD_VER}-linux-amd64.tar.gz -C /tmp/etcd-download-test --strip-components=1
+  rm -f /tmp/etcd-${ETCD_VER}-linux-amd64.tar.gz
+  /tmp/etcd-download-test/etcd --version
+  /tmp/etcd-download-test/etcdctl version
+  /tmp/etcd-download-test/etcdutl version
+  cp -p /tmp/etcd-download-test/etcd /usr/bin/
+  cp -p /tmp/etcd-download-test/etcdctl /usr/bin/
+  cp -p /tmp/etcd-download-test/etcdutl /usr/bin/
+  cd /tmp
+  rm -rf /tmp/etcd-download-test
+fi
 
 # Setup some ssh stuff
 
-ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key -N ''
-ssh-keygen -t dsa -f /etc/ssh/ssh_host_ecdsa_key -N ''
-ssh-keygen -t ed25519 -f /etc/ssh/ssh_host_ed25519_key -N ''
+for ssh_key in rsa ed25519 ecdsa
+do
+   key_file=/etc/ssh/ssh_host_${ssh_key}_key
+   if [ ! -f $key_file ]
+   then
+     ssh-keygen -t $ssh_key -f $key_file -N ''
+   fi
+done
 
 echo "StrictHostKeyChecking no" >> /etc/ssh/ssh_config
 
@@ -75,7 +81,7 @@ rm -f /run/nologin
 # /bin/bash better option than the tail -f especially without a supervisor
 # consider using dumb_init in the future as a supervisor https://github.com/Yelp/dumb-init
  
-/bin/bash
+TMOUT=0 /bin/bash
 
 #exec tail -f /dev/null
 #sleep infinity
