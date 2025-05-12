@@ -29,7 +29,8 @@ RUN \
   && dnf install -y pg_top \
   && dnf install -y pg_activity \
   && dnf install -y https://www.pgpool.net/yum/rpms/4.5/redhat/rhel-8-x86_64/pgpool-II-release-4.5-1.noarch.rpm \
-  && dnf install -y pgpool-II-pg16-extensions pgpool-II-pg16 \
+  && dnf install -y https://www.pgpool.net/yum/rpms/4.5/redhat/rhel-8-x86_64/pgpool-II-pg16-extensions-4.5.1-1pgdg.rhel8.x86_64.rpm \
+ # && dnf install -y pgpool-II-pg16-extensions pgpool-II-pg16 \
   && dnf install -y repmgr_16
 
 RUN mkdir -p /pgdata/16/
