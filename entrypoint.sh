@@ -81,7 +81,9 @@ rm -f /run/nologin
 # /bin/bash better option than the tail -f especially without a supervisor
 # consider using dumb_init in the future as a supervisor https://github.com/Yelp/dumb-init
  
-TMOUT=0 /bin/bash
+#TMOUT=0 /bin/bash
 
-#exec tail -f /dev/null
+export TMOUT=0
+exec tail -f /dev/null
+
 #sleep infinity
